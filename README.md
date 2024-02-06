@@ -1,1 +1,0 @@
-# PostgreSQL Hi Availability Cluster

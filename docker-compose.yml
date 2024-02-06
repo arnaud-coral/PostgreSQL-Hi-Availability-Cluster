@@ -1,0 +1,92 @@
+version: '3.7'
+services:
+  zookeeper1:
+    image: zookeeper
+    container_name: zookeeper1
+    environment:
+      - ZOO_MY_ID=1
+      - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    volumes:
+      - ./zookeeper/zookeeper1_conf:/conf
+    networks:
+      - postgres-cluster
+
+  zookeeper2:
+    image: zookeeper
+    container_name: zookeeper2
+    environment:
+      - ZOO_MY_ID=2
+      - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    volumes:
+      - ./zookeeper/zookeeper2_conf:/conf
+    networks:
+      - postgres-cluster
+
+  zookeeper3:
+    image: zookeeper
+    container_name: zookeeper3
+    environment:
+      - ZOO_MY_ID=3
+      - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    volumes:
+      - ./zookeeper/zookeeper3_conf:/conf
+    networks:
+      - postgres-cluster
+
+  patroni1:
+    build: .
+    container_name: patroni1
+    volumes:
+      - ./patroni/patroni1.yml:/etc/patroni.yml
+    environment:
+      - PATRONI_NAME=patroni1
+      - PATRONI_REPLICATION_USERNAME=replicator
+      - PATRONI_REPLICATION_PASSWORD=replgoodpassword
+      - POSTGRES_PASSWORD=goodpassword
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+    networks:
+      - postgres-cluster
+
+  patroni2:
+    build: .
+    container_name: patroni2
+    volumes:
+      - ./patroni/patroni2.yml:/etc/patroni.yml
+    environment:
+      - PATRONI_NAME=patroni2
+      - PATRONI_REPLICATION_USERNAME=replicator
+      - PATRONI_REPLICATION_PASSWORD=replgoodpassword
+      - POSTGRES_PASSWORD=goodpassword
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+    networks:
+      - postgres-cluster
+
+  patroni3:
+    build: .
+    container_name: patroni3
+    volumes:
+      - ./patroni/patroni3.yml:/etc/patroni.yml
+    environment:
+      - PATRONI_NAME=patroni3
+      - PATRONI_REPLICATION_USERNAME=replicator
+      - PATRONI_REPLICATION_PASSWORD=replgoodpassword
+      - POSTGRES_PASSWORD=goodpassword
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+    networks:
+      - postgres-cluster
+
+networks:
+  postgres-cluster:
+    driver: bridge
