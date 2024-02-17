@@ -41,6 +41,7 @@ bootstrap:
 postgresql:
   listen: 0.0.0.0:5432
   connect_address: patroni2:5432
+  use_slots: true
   data_dir: /data/patroni
   pgpass: /tmp/pgpass
   authentication:
@@ -52,3 +53,7 @@ postgresql:
       password: "${POSTGRES_PASSWORD}"
   parameters:
     unix_socket_directories: '.'
+    wal_keep_size: '2048'
+    max_wal_senders: 10
+    log_replication_commands: 'on'
+    wal_log_hints: 'on'
