@@ -87,6 +87,21 @@ services:
     networks:
       - postgres-cluster
 
+  haproxy:
+    image: haproxy:latest
+    container_name: haproxy
+    depends_on:
+      - patroni1
+      - patroni2
+      - patroni3
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    ports:
+      - "5000:5000" # Port for write (upsert) queries
+      - "5001:5001" # Port for read (select) queries
+    networks:
+      - postgres-cluster
+
 networks:
   postgres-cluster:
     driver: bridge
