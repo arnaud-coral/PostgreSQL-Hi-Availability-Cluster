@@ -11,6 +11,16 @@ RUN python3 -m venv /opt/venv && \
     . /opt/venv/bin/activate && \
     pip install patroni[psycopg3,zookeeper]
 
+# Create a non-root user 'patroni' with no password
+# and change ownership of necessary directories
+RUN useradd -m -s /bin/bash patroni
+
+# Create necessary directories and change ownership
+RUN mkdir /data /datalog && \
+    chown -R patroni:patroni /opt/venv /data /datalog
+    
+USER patroni
+
 # Expose ports for PostgreSQL and the Patroni REST API
 EXPOSE 5432 8008
 
